@@ -14,7 +14,7 @@ class Ui_bodyForm(object):
         bodyForm.resize(356, 253)
         bodyForm.setMinimumSize(QtCore.QSize(356, 253))
         bodyForm.setMaximumSize(QtCore.QSize(356, 253))
-        bodyForm.setToolTipDuration(2)
+        bodyForm.setToolTipDuration(5)
         self.verticalLayout = QtWidgets.QVBoxLayout(bodyForm)
         self.verticalLayout.setContentsMargins(6, 3, 6, 3)
         self.verticalLayout.setObjectName("verticalLayout")

@@ -473,66 +473,37 @@
        <item>
         <widget class="QTabWidget" name="WIDGET_viewTabs">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
-         <widget class="QWidget" name="TAB_XY_3D">
-          <attribute name="title">
-           <string>XY / 3D Views</string>
-          </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QWidget" name="graph_3D_2" native="true">
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(58, 58, 58);</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QWidget" name="graph_xy_2" native="true">
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(58, 58, 58);</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-          <zorder>graph_xy_2</zorder>
-          <zorder>graph_3D_2</zorder>
-         </widget>
          <widget class="QWidget" name="TAB_XY">
           <attribute name="title">
            <string>XY View</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QWidget" name="graph_xy" native="true">
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(58, 58, 58);</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QVBoxLayout" name="verticalLayout_5"/>
          </widget>
          <widget class="QWidget" name="TAB_3D">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <attribute name="title">
            <string>3D View</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QWidget" name="graph_3d" native="true">
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(58, 58, 58);</string>
-             </property>
-            </widget>
-           </item>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
           </layout>
          </widget>
         </widget>

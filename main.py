@@ -1,9 +1,14 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import lib.assets.gui.mainWindow as mainWindow
+import lib.scripts.euler as Euler
 from lib.assets.gui.bodyWidget import Ui_bodyForm as bodyWidget
 import sys, os, csv, glob
 
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import random
 
 def my_exception_hook(exctype, value, traceback):
     # Print the error and traceback
@@ -33,6 +38,12 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
         self.loadPresetFiles()
 
+        self.figure = plt.figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.canvas.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.canvas.updateGeometry()
+        self.verticalLayout_4.addWidget(self.canvas)
+
         self.body_list_model = QStandardItemModel(self.lv_bodies)
         self.lv_bodies.setModel(self.body_list_model)
         self.lv_bodies.doubleClicked.connect(self.editBody)
@@ -47,6 +58,27 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
     def clearPlot(self):
         return
     def handlePlot(self):
+
+        motions = Euler.main()
+
+        ax = self.figure.add_subplot(1, 1, 1, projection='3d')
+        colours = ['r', 'b', 'g', 'y', 'm', 'c']
+        ax.set_facecolor('black')
+
+        ax.axis('off')
+
+        max_range = 0
+        for current_body in motions:
+            max_dim = max(max(current_body["x"]), max(current_body["y"]), max(current_body["z"]))
+            if max_dim > max_range:
+                max_range = max_dim
+            ax.plot(current_body["x"], current_body["y"], current_body["z"], c=random.choice(colours),
+                    label=current_body["name"])
+
+
+        self.figure.tight_layout(pad=0.1)
+        self.canvas.draw()
+
         return
 
     def reset(self):
