@@ -1,9 +1,9 @@
-"Body Type (s=star, p=planet)",Name,Mass (kg),Radius (km),Orbit SMA (km),Orbit Mean Velocity (km/s),Inclination (deg),Start Position Angle (deg)
-s,Kerbol,1.76E+28,261600,0,0,0,0
-p,Moho,2.53E+21,250,5263138,15.232,7,0
-p,Eve,1.22E+23,700,9832684,10.9,2.099,0
-p,Kerbin,5.29E+22,600,13599840,9.2845,0,0
-p,Duna,4.52E+21,320,20726155,7.6,0.06,0
-p,Dres,3.22E+20,138,40839348,5.415,5,0
-p,Jool,4.23E+24,6000,68773560,4.2,1.304,0
-p,Eeloo,1.12E+21,210,90118820,3.735,6.15,0
+"Body Type (s=star, p=planet)",Name,Mass (kg),Radius (km),Orbit SMA (km),Orbit Mean Velocity (km/s),Inclination (deg)
+s,Kerbol,1.76E+028,261600,0,0,0
+p,Moho,2.53E+021,250,5263138,15.232,7
+p,Eve,1.22E+023,700,9832684,10.9,2.099
+p,Kerbin,5.29E+022,600,13599840,9.2845,0
+p,Duna,4.52E+021,320,20726155,7.6,0.06
+p,Dres,3.22E+020,138,40839348,5.415,5
+p,Jool,4.23E+024,6000,68773560,4.2,1.304
+p,Eeloo,1.12E+021,210,90118820,3.735,6.15
