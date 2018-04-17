@@ -66,16 +66,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="cb_star">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stars will be placed in the middle of the simulation, and are immovable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Star</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="QLineEdit" name="le_radius">
         <property name="toolTip">
@@ -111,7 +101,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLineEdit" name="le_name">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of this orbital body.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -125,7 +115,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="lbl_name">
         <property name="text">
          <string>Name:</string>
@@ -152,6 +142,16 @@
          <string>Orbit Semi-Major Axis (km):</string>
         </property>
        </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_preset">
+        <property name="text">
+         <string>Preset:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cb_preset"/>
       </item>
      </layout>
     </widget>
@@ -198,7 +198,6 @@
  </widget>
  <tabstops>
   <tabstop>le_name</tabstop>
-  <tabstop>cb_star</tabstop>
   <tabstop>le_mass</tabstop>
   <tabstop>le_radius</tabstop>
   <tabstop>le_sma</tabstop>

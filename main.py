@@ -4,11 +4,13 @@ import lib.assets.gui.mainWindow as mainWindow
 import lib.scripts.euler as Euler
 from lib.assets.gui.bodyWidget import Ui_bodyForm as bodyWidget
 import sys, os, csv, glob
+from random import random
+from numpy import array
+import pyqtgraph.opengl as gl
 
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import random
+star_preset_path = './lib/presets/stars/star_presets.csv'
+body_preset_path = './lib/presets/bodies/body_presets.csv'
+
 
 def my_exception_hook(exctype, value, traceback):
     # Print the error and traceback
@@ -18,14 +20,28 @@ def my_exception_hook(exctype, value, traceback):
     sys.exit(1)
 
 class Body:
-    def __init__(self, body_type, name, mass, radius, sma, vel, inc):
-        self.body_type = body_type
+    def __init__(self, name, mass, radius, sma, vel, inc):
         self.name = name
         self.mass = mass
         self.radius = radius
         self.sma = sma
         self.vel = vel
         self.inc = inc
+        self.x = None
+        self.y = None
+        self.z = None
+        self.vx = None
+        self.vy = None
+        self.vz = None
+
+class Star:
+    def __init__(self, name, mass, radius):
+        self.name = name
+        self.mass = mass
+        self.radius = radius
+        self.x = 0
+        self.y = 0
+        self.z = 0
 
 
 class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
@@ -33,20 +49,23 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         super(SimMainWindow, self).__init__(parent)
 
         self.body_list = []
+        self.star_presets = []
+        self.body_presets = []
+        self.star = None
 
         self.setupUi(self)
 
         self.loadPresetFiles()
 
-        self.figure = plt.figure()
-        self.canvas = FigureCanvas(self.figure)
-        self.canvas.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self.canvas.updateGeometry()
-        self.verticalLayout_4.addWidget(self.canvas)
+        self.gv_3d.opts['distance'] = (4e11)
 
         self.body_list_model = QStandardItemModel(self.lv_bodies)
         self.lv_bodies.setModel(self.body_list_model)
         self.lv_bodies.doubleClicked.connect(self.editBody)
+
+        self.cb_starPreset.currentTextChanged.connect(self.loadStarPreset)
+
+        self.btn_starSave.clicked.connect(self.saveStar)
 
         self.btn_loadpreset.clicked.connect(self.loadPreset)
         self.btn_addbody.clicked.connect(self.addBody)
@@ -55,30 +74,39 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.btn_clear.clicked.connect(self.clearPlot)
         self.btn_plot.clicked.connect(self.handlePlot)
 
+    def loadStarPreset(self):
+
+        for star in self.star_presets:
+            if star.name == self.cb_starPreset.currentText():
+                self.star = star
+
+        self.le_starname.setText(str(self.star.name))
+        self.le_starmass.setText(str(self.star.mass))
+        self.le_starradius.setText(str(self.star.radius))
+
+    def saveStar(self):
+
+        name = self.le_starname.text()
+        mass = float(self.le_starmass.text())
+        radius = float(self.le_starradius.text())
+
+        self.star = Star(name, mass, radius)
+        print(self.star.name)
+
     def clearPlot(self):
+        self.gv_3d.items.clear()
         return
+
     def handlePlot(self):
 
-        motions = Euler.main()
-
-        ax = self.figure.add_subplot(1, 1, 1, projection='3d')
-        colours = ['r', 'b', 'g', 'y', 'm', 'c']
-        ax.set_facecolor('black')
-
-        ax.axis('off')
-
-        max_range = 0
-        for current_body in motions:
-            max_dim = max(max(current_body["x"]), max(current_body["y"]), max(current_body["z"]))
-            if max_dim > max_range:
-                max_range = max_dim
-            ax.plot(current_body["x"], current_body["y"], current_body["z"], c=random.choice(colours),
-                    label=current_body["name"])
+        results = Euler.main(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
 
 
-        self.figure.tight_layout(pad=0.1)
-        self.canvas.draw()
-
+        for body in range(0, len(self.body_list)):
+            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(results[body]), color=(random(), random(), random(), 1.0), antialias=True))
+        self.gv_3d.addItem(
+            gl.GLLinePlotItem(pos=array([self.star.x, self.star.y, self.star.z]), color=(random(), random(), random(), 1.0), antialias=True,
+                              mode='line_strip'))
         return
 
     def reset(self):
@@ -99,8 +127,19 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
     def loadPresetFiles(self):
 
-        for preset in glob.glob('./lib/systems/presets/*.csv'):
+        for preset in glob.glob('./lib/presets/systems/*.csv'):
             self.cmb_preset.addItem(os.path.basename(preset))
+        with open(star_preset_path, 'r') as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                self.star_presets.append(Star(row[0], float(row[1]), float(row[2])))
+                self.cb_starPreset.addItem(row[0])
+        with open(body_preset_path, 'r') as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                self.body_presets.append(Body(row[0], float(row[1]), float(row[2]), float(row[3]), float(row[4]), float(row[5])))
 
     def updateListModel(self):
 
@@ -122,6 +161,10 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         bodyDialog.setupUi(dialog)
         dialog.setWindowTitle("Edit an Orbital Body")
 
+        for body in self.body_presets:
+            bodyDialog.cb_preset.addItem(body.name)
+
+        bodyDialog.cb_preset.currentTextChanged.connect(lambda: loadPreset())
         bodyDialog.btn_ok.clicked.connect(lambda: returnBodyVals())
         bodyDialog.btn_cancel.clicked.connect(lambda: dialog.done(1))
 
@@ -132,8 +175,17 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         bodyDialog.le_vel.setText(str(selected_body.vel))
         bodyDialog.le_inc.setText(str(selected_body.inc))
 
-        if selected_body.body_type == "s":
-            bodyDialog.cb_star.setChecked(True)
+        def loadPreset():
+            chosen_preset = bodyDialog.cb_preset.currentText()
+            for preset in self.body_presets:
+                if preset.name == chosen_preset:
+                    bodyDialog.le_name.setText(preset.name)
+                    bodyDialog.le_mass.setText(str(preset.mass))
+                    bodyDialog.le_radius.setText(str(preset.radius))
+                    bodyDialog.le_vel.setText(str(preset.vel))
+                    bodyDialog.le_sma.setText(str(preset.sma))
+                    bodyDialog.le_inc.setText(str(preset.inc))
+
 
         def returnBodyVals():
             name = bodyDialog.le_name.text()
@@ -142,10 +194,6 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             sma = float(bodyDialog.le_sma.text())
             vel = float(bodyDialog.le_vel.text())
             inc = float(bodyDialog.le_inc.text())
-            if bodyDialog.cb_star.isChecked():
-                body_type = "s"
-            else:
-                body_type = "p"
 
             selected_body.name = name
             selected_body.mass = mass
@@ -153,8 +201,6 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             selected_body.sma = sma
             selected_body.vel = vel
             selected_body.inc = inc
-            selected_body.body_type = body_type
-
 
             self.updateListModel()
             dialog.done(0)
@@ -169,8 +215,23 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         bodyDialog.setupUi(dialog)
         dialog.setWindowTitle("Add a New Body")
 
+        for body in self.body_presets:
+            bodyDialog.cb_preset.addItem(body.name)
+
+        bodyDialog.cb_preset.currentTextChanged.connect(lambda: loadPreset())
         bodyDialog.btn_ok.clicked.connect(lambda: returnBodyVals())
         bodyDialog.btn_cancel.clicked.connect(lambda: dialog.done(1))
+
+        def loadPreset():
+            chosen_preset = bodyDialog.cb_preset.currentText()
+            for preset in self.body_presets:
+                if preset.name == chosen_preset:
+                    bodyDialog.le_name.setText(preset.name)
+                    bodyDialog.le_mass.setText(str(preset.mass))
+                    bodyDialog.le_radius.setText(str(preset.radius))
+                    bodyDialog.le_vel.setText(str(preset.vel))
+                    bodyDialog.le_sma.setText(str(preset.sma))
+                    bodyDialog.le_inc.setText(str(preset.inc))
 
         def returnBodyVals():
             name = bodyDialog.le_name.text()
@@ -179,11 +240,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             sma = float(bodyDialog.le_sma.text())
             vel = float(bodyDialog.le_vel.text())
             inc = float(bodyDialog.le_inc.text())
-            if bodyDialog.cb_star.isChecked():
-                body_type = "s"
-            else:
-                body_type = "p"
-            body = Body(body_type, name, mass, radius, sma, vel, inc)
+            body = Body(name, mass, radius, sma, vel, inc)
             self.body_list.append(body)
             self.body_list_model.appendRow(QStandardItem(body.name))
             dialog.done(0)
@@ -194,7 +251,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
     def loadPreset(self):
 
-        preset = ('./lib/systems/presets/'+self.cmb_preset.currentText())
+        preset = ('./lib/presets/systems/'+self.cmb_preset.currentText())
 
         self.reset()
 
@@ -202,11 +259,16 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             reader = csv.reader(f, delimiter=',')
             next(reader)
             for row in reader:
-                self.body_list.append(Body(row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
+                if row[0] == "s":
+                    self.star = Star(row[1],float(row[2]),float(row[3]))
+                if row[0] == "p":
+                    self.body_list.append(Body(row[1],float(row[2]),float(row[3]),float(row[4]),float(row[5]),float(row[6])))
             for body in self.body_list:
                 item = QStandardItem(body.name)
                 self.body_list_model.appendRow(item)
-
+            self.le_starname.setText(str(self.star.name))
+            self.le_starmass.setText(str(self.star.mass))
+            self.le_starradius.setText(str(self.star.radius))
 
 
 
