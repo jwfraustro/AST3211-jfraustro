@@ -14,6 +14,7 @@ class Ui_bodyForm(object):
         bodyForm.resize(356, 253)
         bodyForm.setMinimumSize(QtCore.QSize(356, 253))
         bodyForm.setMaximumSize(QtCore.QSize(356, 253))
+        bodyForm.setToolTipDuration(2)
         self.verticalLayout = QtWidgets.QVBoxLayout(bodyForm)
         self.verticalLayout.setContentsMargins(6, 3, 6, 3)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -84,6 +85,14 @@ class Ui_bodyForm(object):
 
         self.retranslateUi(bodyForm)
         QtCore.QMetaObject.connectSlotsByName(bodyForm)
+        bodyForm.setTabOrder(self.le_name, self.cb_star)
+        bodyForm.setTabOrder(self.cb_star, self.le_mass)
+        bodyForm.setTabOrder(self.le_mass, self.le_radius)
+        bodyForm.setTabOrder(self.le_radius, self.le_sma)
+        bodyForm.setTabOrder(self.le_sma, self.le_vel)
+        bodyForm.setTabOrder(self.le_vel, self.le_inc)
+        bodyForm.setTabOrder(self.le_inc, self.btn_ok)
+        bodyForm.setTabOrder(self.btn_ok, self.btn_cancel)
 
     def retranslateUi(self, bodyForm):
         _translate = QtCore.QCoreApplication.translate

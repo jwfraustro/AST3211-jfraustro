@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SimMainWindow(object):
     def setupUi(self, SimMainWindow):
         SimMainWindow.setObjectName("SimMainWindow")
-        SimMainWindow.resize(1132, 734)
+        SimMainWindow.resize(1132, 728)
         self.centralwidget = QtWidgets.QWidget(SimMainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -257,8 +257,6 @@ class Ui_SimMainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        self.menuLoad = QtWidgets.QMenu(self.menuFile)
-        self.menuLoad.setObjectName("menuLoad")
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
         SimMainWindow.setMenuBar(self.menubar)
@@ -266,15 +264,13 @@ class Ui_SimMainWindow(object):
         self.actionPreset.setObjectName("actionPreset")
         self.actionExit = QtWidgets.QAction(SimMainWindow)
         self.actionExit.setObjectName("actionExit")
-        self.menuLoad.addAction(self.actionPreset)
-        self.menuFile.addAction(self.menuLoad.menuAction())
-        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(SimMainWindow)
         self.WIDGET_LH.setCurrentIndex(0)
+        self.cmb_tsteps.setCurrentIndex(2)
         self.WIDGET_viewTabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(SimMainWindow)
 
@@ -318,7 +314,6 @@ class Ui_SimMainWindow(object):
         self.WIDGET_viewTabs.setTabText(self.WIDGET_viewTabs.indexOf(self.TAB_XY), _translate("SimMainWindow", "XY View"))
         self.WIDGET_viewTabs.setTabText(self.WIDGET_viewTabs.indexOf(self.TAB_3D), _translate("SimMainWindow", "3D View"))
         self.menuFile.setTitle(_translate("SimMainWindow", "File"))
-        self.menuLoad.setTitle(_translate("SimMainWindow", "Load"))
         self.menuHelp.setTitle(_translate("SimMainWindow", "Help"))
         self.actionPreset.setText(_translate("SimMainWindow", "Preset"))
         self.actionExit.setText(_translate("SimMainWindow", "Exit"))

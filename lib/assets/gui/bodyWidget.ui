@@ -25,6 +25,9 @@
   <property name="windowTitle">
    <string>Orbital Body - Edit</string>
   </property>
+  <property name="toolTipDuration">
+   <number>5</number>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
     <number>6</number>
@@ -193,6 +196,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>le_name</tabstop>
+  <tabstop>cb_star</tabstop>
+  <tabstop>le_mass</tabstop>
+  <tabstop>le_radius</tabstop>
+  <tabstop>le_sma</tabstop>
+  <tabstop>le_vel</tabstop>
+  <tabstop>le_inc</tabstop>
+  <tabstop>btn_ok</tabstop>
+  <tabstop>btn_cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
