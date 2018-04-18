@@ -36,12 +36,6 @@ def calcAcceleration(star, bodies, skip_num):
 
     return
 
-def calcVelocity(star, bodies):
-    return
-def calcPositions(star, bodies):
-    return
-
-
 def convertUnits(bodies):
 
     for body in bodies:

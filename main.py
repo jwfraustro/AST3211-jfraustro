@@ -1,12 +1,19 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-import lib.assets.gui.mainWindow as mainWindow
-import lib.scripts.euler as Euler
-from lib.assets.gui.bodyWidget import Ui_bodyForm as bodyWidget
-import sys, os, csv, glob
+import csv
+import glob
+import os
+import sys
 from random import random
-from numpy import array
+
 import pyqtgraph.opengl as gl
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QVector3D as Vector
+from numpy import array
+
+import lib.assets.gui.mainWindow as mainWindow
+from lib.assets.gui.bodyWidget import Ui_bodyForm as bodyWidget
+from lib.scripts.euler import main as Euler
+from lib.scripts.sphere_influence import main as SOI
 
 star_preset_path = './lib/presets/stars/star_presets.csv'
 body_preset_path = './lib/presets/bodies/body_presets.csv'
@@ -33,6 +40,8 @@ class Body:
         self.vx = None
         self.vy = None
         self.vz = None
+        self.soi = None
+        self.parent = None
 
 class Star:
     def __init__(self, name, mass, radius):
@@ -42,6 +51,7 @@ class Star:
         self.x = 0
         self.y = 0
         self.z = 0
+        self.soi = None
 
 
 class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
@@ -52,13 +62,17 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.star_presets = []
         self.body_presets = []
         self.star = None
+        self.camera_focus = 0
 
         self.setupUi(self)
 
         self.loadPresetFiles()
+        self.loadStarPreset()
 
         self.gv_3d.opts['distance'] = (4e11)
 
+        self.btn_focus_prv.clicked.connect(lambda: self.setCameraFocus('last'))
+        self.btn_focus_next.clicked.connect(lambda: self.setCameraFocus('next'))
         self.body_list_model = QStandardItemModel(self.lv_bodies)
         self.lv_bodies.setModel(self.body_list_model)
         self.lv_bodies.doubleClicked.connect(self.editBody)
@@ -73,6 +87,32 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.btn_reset.clicked.connect(self.reset)
         self.btn_clear.clicked.connect(self.clearPlot)
         self.btn_plot.clicked.connect(self.handlePlot)
+
+    def setCameraFocus(self, direction):
+
+        if direction == 'next':
+            self.camera_focus += 1
+            if self.camera_focus == len(self.body_list):
+                self.camera_focus = 0
+            pos = Vector(self.results[self.camera_focus][-1][0], self.results[self.camera_focus][-1][1], self.results[self.camera_focus][-1][2])
+            print(pos)
+            self.gv_3d.opts['center'] = pos
+            self.lbl_body_focus.setText(self.body_list[self.camera_focus].name)
+            self.gv_3d.update()
+            return
+        if direction == 'last':
+            self.camera_focus -= 1
+            if self.camera_focus == 0:
+                self.camera_focus = len(self.body_list)-1
+            pos = Vector(self.results[self.camera_focus][-1][0], self.results[self.camera_focus][-1][1],
+                         self.results[self.camera_focus][-1][2])
+            print(pos)
+            self.gv_3d.opts['center'] = pos
+            self.lbl_body_focus.setText(self.body_list[self.camera_focus].name)
+            self.gv_3d.update()
+            return
+
+
 
     def loadStarPreset(self):
 
@@ -99,14 +139,16 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
     def handlePlot(self):
 
-        results = Euler.main(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
+        self.gv_3d.clear()
 
+        if self.cmb_solmethod.currentText() == "Euler Integration":
+            self.results = Euler(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
+        if self.cmb_solmethod.currentText() == "Sphere of Influence":
+            self.results = SOI(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
 
         for body in range(0, len(self.body_list)):
-            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(results[body]), color=(random(), random(), random(), 1.0), antialias=True))
-        self.gv_3d.addItem(
-            gl.GLLinePlotItem(pos=array([self.star.x, self.star.y, self.star.z]), color=(random(), random(), random(), 1.0), antialias=True,
-                              mode='line_strip'))
+            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(self.results[body]), color=(random(), random(), random(), 1.0), antialias=True, mode='line_strip',width=3.0))
+            self.gv_3d.addItem(gl.GLGridItem())
         return
 
     def reset(self):
