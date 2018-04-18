@@ -18,6 +18,9 @@ from lib.scripts.sphere_influence import main as SOI
 star_preset_path = './lib/presets/stars/star_presets.csv'
 body_preset_path = './lib/presets/bodies/body_presets.csv'
 
+SECS_MINUTE = 60
+SECS_DAY = 86400
+SECS_YEAR = 86400*365
 
 def my_exception_hook(exctype, value, traceback):
     # Print the error and traceback
@@ -70,6 +73,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.loadStarPreset()
 
         self.gv_3d.opts['distance'] = (4e11)
+        self.cmb_preset.setCurrentIndex(1)
 
         self.btn_focus_prv.clicked.connect(lambda: self.setCameraFocus('last'))
         self.btn_focus_next.clicked.connect(lambda: self.setCameraFocus('next'))
@@ -87,6 +91,9 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.btn_reset.clicked.connect(self.reset)
         self.btn_clear.clicked.connect(self.clearPlot)
         self.btn_plot.clicked.connect(self.handlePlot)
+
+        self.loadPreset()
+
 
     def setCameraFocus(self, direction):
 
@@ -111,8 +118,6 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             self.lbl_body_focus.setText(self.body_list[self.camera_focus].name)
             self.gv_3d.update()
             return
-
-
 
     def loadStarPreset(self):
 
@@ -139,10 +144,25 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
     def handlePlot(self):
 
+        if self.cmb_tsteps.currentText() == "Seconds":
+            step_value = int(self.le_stepvalue.text())
+        if self.cmb_tsteps.currentText() == "Minutes":
+            step_value = int(self.le_stepvalue.text())*SECS_MINUTE
+        if self.cmb_tsteps.currentText() == "Days":
+            step_value = int(self.le_stepvalue.text())*SECS_DAY
+        if self.cmb_tsteps.currentText() == "Years":
+            step_value = int(self.le_stepvalue.text())*SECS_YEAR
+
+        steps = int(self.le_nsteps.text())
+        report = int(self.le_stepfreq.text())
+
+        print(steps, step_value, report)
+
         self.gv_3d.clear()
 
         if self.cmb_solmethod.currentText() == "Euler Integration":
-            self.results = Euler(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
+            self.results = Euler(self.star, self.body_list, steps, step_value, report)
+
         if self.cmb_solmethod.currentText() == "Sphere of Influence":
             self.results = SOI(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
 
