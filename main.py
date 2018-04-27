@@ -4,6 +4,8 @@ import os
 import sys
 from random import random
 
+from multiprocessing.pool import ThreadPool
+
 import pyqtgraph as pyqtg
 import pyqtgraph.opengl as gl
 from PyQt5 import QtWidgets
@@ -178,6 +180,12 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.gv_xy.setAspectLocked(lock=True, ratio=1)
         self.gv_xy.enableAutoRange(enable=True)
 
+        if self.rb_multiprocess.isChecked() == True:
+            print("true")
+            self.results = Euler(self.star, self.body_list, steps, step_value, report, 0)
+
+
+
         # if self.rb_inc_report.isChecked() == True:
         #     self.gv_3d.clear()
         #     self.gv_xy.clear()
@@ -194,9 +202,9 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         #        self.gv_xy.addItem(pyqtg.ScatterPlotItem(x=[0 for x in range(step)], y=[0 for x in range(step)]))
 
 
-        if self.rb_inc_report.isChecked() == False:
+        if self.rb_multiprocess.isChecked() == False:
             if self.cmb_solmethod.currentText() == "Euler Integration":
-                self.results = Euler(self.star, self.body_list, steps, step_value, report)
+                self.results = Euler(self.star, self.body_list, steps, step_value, report, 0)
 
             if self.cmb_solmethod.currentText() == "Sphere of Influence":
                 self.results = SOI(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))

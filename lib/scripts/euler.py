@@ -2,6 +2,9 @@ import numpy as np
 from math import sqrt
 from PyQt5 import QtWidgets
 
+from multiprocessing import Process
+
+
 G = 6.674e-11
 
 def calcAcceleration(star, bodies, skip_num):
@@ -48,7 +51,7 @@ def convertUnits(bodies):
 
     return
 
-def main(star, bodies, t_step, skip_num, report):
+def main(star, bodies, t_step, skip_num, report, multiprocess):
     convertUnits(bodies)
     body_history = []
     progress = QtWidgets.QProgressDialog("Computing timesteps..","Cancel",0,t_step)
@@ -60,15 +63,26 @@ def main(star, bodies, t_step, skip_num, report):
 
     for body in bodies:
         body_history.append([[body.x, body.y, body.z]])
-    for i in range(0, t_step):
-        progress.setValue(i)
-        if progress.wasCanceled() == True:
-            break
-        #QtWidgets.QApplication.processEvents()
-        calcAcceleration(star, bodies, skip_num)
-        if i % report == 0:
-            for i, body in enumerate(bodies):
-                body_history[i].append([body.x, body.y, body.z])
+
+    # if multiprocess == 1:
+    #     for i in range(0, t_step):
+    #         for body in range(len(bodies)):
+    #             p = Process(target=f)
+    #         if i % report == 0:
+    #             for i, body in enumerate(bodies):
+    #                 body_history[i].append([body.x, body.y, body.z])
+
+    if multiprocess == 0:
+        for i in range(0, t_step):
+            progress.setValue(i)
+            if progress.wasCanceled() == True:
+                break
+            #QtWidgets.QApplication.processEvents()
+            calcAcceleration(star, bodies, skip_num)
+            if i % report == 0:
+                for i, body in enumerate(bodies):
+                    body_history[i].append([body.x, body.y, body.z])
+
     progress.close()
 
     return body_history

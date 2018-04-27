@@ -375,17 +375,7 @@
              </item>
              <item>
               <property name="text">
-               <string>RK4</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
                <string>Sphere of Influence</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Distance Softened</string>
               </property>
              </item>
             </widget>
@@ -551,16 +541,19 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="lbl_inc_reporting">
+            <widget class="QLabel" name="lbl_multiprocess">
              <property name="text">
-              <string>Incremental Reporting:</string>
+              <string>Multiprocessing:</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QRadioButton" name="rb_inc_report">
+            <widget class="QRadioButton" name="rb_multiprocess">
              <property name="text">
               <string/>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -643,7 +636,7 @@
        <item>
         <widget class="QTabWidget" name="WIDGET_viewTabs">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="TAB_XY">
           <attribute name="title">
