@@ -57,6 +57,7 @@ def main(star, bodies, t_step, skip_num, report):
     progress.setValue(0)
     progress.show()
     QtWidgets.QApplication.processEvents()
+
     for body in bodies:
         body_history.append([[body.x, body.y, body.z]])
     for i in range(0, t_step):

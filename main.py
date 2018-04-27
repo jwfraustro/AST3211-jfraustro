@@ -4,11 +4,14 @@ import os
 import sys
 from random import random
 
+import pyqtgraph as pyqtg
 import pyqtgraph.opengl as gl
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QPixmap, QIcon, QColor
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtGui import QVector3D as Vector
 from numpy import array
+from numpy import max
 
 import lib.assets.gui.mainWindow as mainWindow
 from lib.assets.gui.bodyWidget import Ui_bodyForm as bodyWidget
@@ -21,17 +24,19 @@ body_preset_path = './lib/presets/bodies/body_presets.csv'
 SECS_MINUTE = 60
 SECS_DAY = 86400
 SECS_YEAR = 86400*365
+AU = 1.496e+8
 
 def my_exception_hook(exctype, value, traceback):
     # Print the error and traceback
     print(exctype, value, traceback)
     # Call the normal Exception hook after
-    sys._excepthook(exctype, value, traceback)
+    sys.excepthook(exctype, value, traceback)
     sys.exit(1)
 
 class Body:
     def __init__(self, name, mass, radius, sma, vel, inc):
         self.name = name
+        self.color = None
         self.mass = mass
         self.radius = radius
         self.sma = sma
@@ -67,10 +72,14 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.star = None
         self.camera_focus = 0
 
+        self.current_color = None
+
         self.setupUi(self)
 
         self.loadPresetFiles()
         self.loadStarPreset()
+
+        #self.gv_xy.enableAutoRange(axis = self.gv_xy.ViewBox.YAxis, enable=True)
 
         self.gv_3d.opts['distance'] = (4e11)
         self.cmb_preset.setCurrentIndex(1)
@@ -129,6 +138,8 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.le_starmass.setText(str(self.star.mass))
         self.le_starradius.setText(str(self.star.radius))
 
+        self.saveStar()
+
     def saveStar(self):
 
         name = self.le_starname.text()
@@ -136,10 +147,13 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         radius = float(self.le_starradius.text())
 
         self.star = Star(name, mass, radius)
+        self.gb_star.setTitle("Current Star: "+self.star.name)
         print(self.star.name)
 
     def clearPlot(self):
-        self.gv_3d.items.clear()
+        self.gv_3d.clear()
+        self.gv_xy.clear()
+
         return
 
     def handlePlot(self):
@@ -159,27 +173,55 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         print(steps, step_value, report)
 
         self.gv_3d.clear()
+        self.gv_xy.clear()
 
-        if self.cmb_solmethod.currentText() == "Euler Integration":
-            self.results = Euler(self.star, self.body_list, steps, step_value, report)
+        self.gv_xy.setAspectLocked(lock=True, ratio=1)
+        self.gv_xy.enableAutoRange(enable=True)
 
-        if self.cmb_solmethod.currentText() == "Sphere of Influence":
-            self.results = SOI(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
+        # if self.rb_inc_report.isChecked() == True:
+        #     self.gv_3d.clear()
+        #     self.gv_xy.clear()
+        #     self.results = Euler(self.star, self.body_list, steps, step_value, report)
+        #
+        #     for step in range(len(self.results[0])):
+        #        self.gv_3d.clear()
+        #        self.gv_xy.clear()
+        #        for body in range(0, len(self.body_list)):
+        #            self.gv_xy.addItem(
+        #                pyqtg.PlotDataItem(x=array(self.results[body][:step])[:, 0], y=array(self.results[body][:step])[:, 1]))
+        #            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(self.results[body][:step]), color=self.body_list[body].color,
+        #                                                 antialias=True, mode='line_strip', width=3.0))
+        #        self.gv_xy.addItem(pyqtg.ScatterPlotItem(x=[0 for x in range(step)], y=[0 for x in range(step)]))
+
+
+        if self.rb_inc_report.isChecked() == False:
+            if self.cmb_solmethod.currentText() == "Euler Integration":
+                self.results = Euler(self.star, self.body_list, steps, step_value, report)
+
+            if self.cmb_solmethod.currentText() == "Sphere of Influence":
+                self.results = SOI(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
 
         for body in range(0, len(self.body_list)):
-            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(self.results[body]), color=(random(), random(), random(), 1.0), antialias=True, mode='line_strip',width=3.0))
-            self.gv_3d.addItem(gl.GLGridItem())
-        return
+            self.gv_xy.addItem(pyqtg.PlotDataItem(x=array(self.results[body][:])[:,0], y=array(self.results[body][:])[:,1]))
+            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(self.results[body]), color=self.body_list[body].color, antialias=True, mode='line_strip',width=3.0))
+        self.gv_xy.addItem(pyqtg.ScatterPlotItem(x=[0 for x in range(steps)], y=[0 for x in range(steps)]))
+
 
     def reset(self):
 
         self.body_list.clear()
         self.body_list_model.clear()
+        self.gv_3d.clear()
+        self.gv_xy.clear()
 
 
     def removeBody(self):
 
-        row = self.lv_bodies.selectionModel().selection().indexes()[0].row()
+        try:
+            row = self.lv_bodies.selectionModel().selection().indexes()[0].row()
+        except IndexError:
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Please choose a body to remove.', QtWidgets.QMessageBox.Ok)
+            return
         body_name = self.body_list_model.item(row, 0).text()
 
         for body in self.body_list:
@@ -207,7 +249,11 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
         self.body_list_model.clear()
         for body in self.body_list:
-            self.body_list_model.appendRow(QStandardItem(body.name))
+            pix = QPixmap(20, 20)
+            pix.fill(QColor(body.color[0] * 255, body.color[1] * 255, body.color[2] * 255))
+            icon = QIcon(pix)
+            item = QStandardItem(icon, body.name)
+            self.body_list_model.appendRow(item)
 
     def editBody(self):
 
@@ -223,9 +269,15 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         bodyDialog.setupUi(dialog)
         dialog.setWindowTitle("Edit an Orbital Body")
 
+        self.current_color = selected_body.color
+        pix = QPixmap(20, 20)
+        pix.fill(QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+        bodyDialog.lbl_col_pixmap.setPixmap(pix)
+
         for body in self.body_presets:
             bodyDialog.cb_preset.addItem(body.name)
 
+        bodyDialog.btn_color_choose.clicked.connect(lambda: chooseColor())
         bodyDialog.cb_preset.currentTextChanged.connect(lambda: loadPreset())
         bodyDialog.btn_ok.clicked.connect(lambda: returnBodyVals())
         bodyDialog.btn_cancel.clicked.connect(lambda: dialog.done(1))
@@ -248,6 +300,15 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
                     bodyDialog.le_sma.setText(str(preset.sma))
                     bodyDialog.le_inc.setText(str(preset.inc))
 
+        def chooseColor():
+            color = QtWidgets.QColorDialog.getColor(initial=QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+            temp_color = (float(color.red()/255), float(color.green()/255), float(color.blue()/255), 1.0)
+            self.current_color = temp_color
+            pix = QPixmap(20, 20)
+            pix.fill(QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+            bodyDialog.lbl_col_pixmap.setPixmap(pix)
+            print(self.current_color)
+
 
         def returnBodyVals():
             name = bodyDialog.le_name.text()
@@ -263,7 +324,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             selected_body.sma = sma
             selected_body.vel = vel
             selected_body.inc = inc
-
+            selected_body.color = self.current_color
             self.updateListModel()
             dialog.done(0)
 
@@ -277,12 +338,32 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         bodyDialog.setupUi(dialog)
         dialog.setWindowTitle("Add a New Body")
 
+        self.current_color = None
+
+        if self.current_color == None:
+            self.current_color = (random(), random(), random(), 1.0)
+
+        bodyDialog.btn_color_choose.clicked.connect(lambda: chooseColor())
+
+        pix = QPixmap(20,20)
+        pix.fill(QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+        bodyDialog.lbl_col_pixmap.setPixmap(pix)
+
         for body in self.body_presets:
             bodyDialog.cb_preset.addItem(body.name)
 
         bodyDialog.cb_preset.currentTextChanged.connect(lambda: loadPreset())
         bodyDialog.btn_ok.clicked.connect(lambda: returnBodyVals())
         bodyDialog.btn_cancel.clicked.connect(lambda: dialog.done(1))
+
+        def chooseColor():
+            color = QtWidgets.QColorDialog.getColor(initial=QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+            temp_color = (float(color.red()/255), float(color.green()/255), float(color.blue()/255), 1.0)
+            self.current_color = temp_color
+            pix = QPixmap(20, 20)
+            pix.fill(QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+            bodyDialog.lbl_col_pixmap.setPixmap(pix)
+            print(self.current_color)
 
         def loadPreset():
             chosen_preset = bodyDialog.cb_preset.currentText()
@@ -303,9 +384,15 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             vel = float(bodyDialog.le_vel.text())
             inc = float(bodyDialog.le_inc.text())
             body = Body(name, mass, radius, sma, vel, inc)
+            body.color = self.current_color
+            pix = QPixmap(20, 20)
+            pix.fill(QColor(self.current_color[0] * 255, self.current_color[1] * 255, self.current_color[2] * 255))
+            icon = QIcon(pix)
             self.body_list.append(body)
-            self.body_list_model.appendRow(QStandardItem(body.name))
+            self.body_list_model.appendRow(QStandardItem(icon, body.name))
             dialog.done(0)
+
+        loadPreset()
 
         dialog.show()
         dialog.exec_()
@@ -324,9 +411,16 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
                 if row[0] == "s":
                     self.star = Star(row[1],float(row[2]),float(row[3]))
                 if row[0] == "p":
-                    self.body_list.append(Body(row[1],float(row[2]),float(row[3]),float(row[4]),float(row[5]),float(row[6])))
+                    body = Body(row[1],float(row[2]),float(row[3]),float(row[4]),float(row[5]),float(row[6]))
+                    if body.color == None:
+                        body.color = (random(),random(),random(),1.0)
+                    self.body_list.append(body)
+                    print(body.color)
             for body in self.body_list:
-                item = QStandardItem(body.name)
+                pix = QPixmap(20,20)
+                pix.fill(QColor(body.color[0]*255, body.color[1]*255, body.color[2]*255))
+                icon = QIcon(pix)
+                item = QStandardItem(icon, body.name)
                 self.body_list_model.appendRow(item)
             self.le_starname.setText(str(self.star.name))
             self.le_starmass.setText(str(self.star.mass))
