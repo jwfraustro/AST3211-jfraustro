@@ -662,8 +662,30 @@
        <item>
         <widget class="QTabWidget" name="WIDGET_viewTabs">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
+         <widget class="QWidget" name="TAB_system_view">
+          <attribute name="title">
+           <string>System View</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="GLViewWidget" name="gv_system_view"/>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="TAB_XY">
           <attribute name="title">
            <string>XY View</string>

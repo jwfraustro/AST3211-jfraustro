@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
-    <height>275</height>
+    <width>626</width>
+    <height>328</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>356</width>
-    <height>253</height>
+    <width>626</width>
+    <height>328</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>356</width>
-    <height>275</height>
+    <width>900</width>
+    <height>900</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
   <property name="toolTipDuration">
    <number>5</number>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout_3">
    <property name="leftMargin">
     <number>6</number>
    </property>
@@ -43,6 +43,12 @@
    </property>
    <item>
     <widget class="QGroupBox" name="GB_body">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Orbital Body</string>
      </property>
@@ -59,15 +65,47 @@
       <property name="bottomMargin">
        <number>5</number>
       </property>
+      <item row="9" column="1">
+       <widget class="QFrame" name="frame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="btn_ok">
+           <property name="text">
+            <string>Ok</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_cancel">
+           <property name="text">
+            <string>Cancel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cb_preset"/>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="lbl_preset">
         <property name="text">
          <string>Preset:</string>
         </property>
        </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="cb_preset"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="lbl_sma">
@@ -80,6 +118,20 @@
        <widget class="QLabel" name="lbl_inc">
         <property name="text">
          <string>Inclination (deg):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbl_radius">
+        <property name="text">
+         <string>Radius (km):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_mass">
+        <property name="text">
+         <string>Mass (kg):</string>
         </property>
        </widget>
       </item>
@@ -97,31 +149,10 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lbl_mass">
-        <property name="text">
-         <string>Mass (kg):</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lbl_radius">
-        <property name="text">
-         <string>Radius (km):</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="QLineEdit" name="le_radius">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Radius of the orbital body, in kilometers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLineEdit" name="le_vel">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The mean orbital velocity, in kilometers per second.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -139,6 +170,13 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="le_vel">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The mean orbital velocity, in kilometers per second.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="1">
        <widget class="QLineEdit" name="le_mass">
         <property name="toolTip">
@@ -150,6 +188,13 @@
        <widget class="QLineEdit" name="le_name">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of this orbital body.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1" alignment="Qt::AlignLeft">
+       <widget class="QPushButton" name="btn_color_choose">
+        <property name="text">
+         <string>Choose Color</string>
         </property>
        </widget>
       </item>
@@ -177,7 +222,7 @@
          <item>
           <widget class="QLabel" name="lbl_color">
            <property name="text">
-            <string>Color: (Optional)</string>
+            <string>Orbit Color: (Optional)</string>
            </property>
           </widget>
          </item>
@@ -191,56 +236,71 @@
         </layout>
        </widget>
       </item>
-      <item row="7" column="1" alignment="Qt::AlignLeft">
-       <widget class="QPushButton" name="btn_color_choose">
+      <item row="8" column="0">
+       <widget class="QLabel" name="lbl_texture">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string>Choose Color</string>
+         <string>Texture:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QPushButton" name="btn_texture">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Choose Texture</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignRight">
-    <widget class="QFrame" name="frame">
+   <item>
+    <widget class="QFrame" name="frame_3">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="topMargin">
-       <number>3</number>
-      </property>
-      <property name="bottomMargin">
-       <number>3</number>
-      </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QPushButton" name="btn_ok">
-        <property name="text">
-         <string>Ok</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btn_cancel">
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
+       <widget class="GLViewWidget" name="gv_body"/>
       </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GLViewWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph.opengl</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>le_name</tabstop>
   <tabstop>le_mass</tabstop>
@@ -248,8 +308,6 @@
   <tabstop>le_sma</tabstop>
   <tabstop>le_vel</tabstop>
   <tabstop>le_inc</tabstop>
-  <tabstop>btn_ok</tabstop>
-  <tabstop>btn_cancel</tabstop>
  </tabstops>
  <resources/>
  <connections/>

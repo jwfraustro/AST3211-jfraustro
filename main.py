@@ -22,6 +22,8 @@ from lib.scripts.euler import main as Euler
 from lib.scripts.sphere_influence import main as SOI
 
 star_preset_path = './lib/presets/stars/star_presets.csv'
+star_textures_path = './lib/assets/textures/stars/'
+planet_textures_path = './lib/assets/textures/planets/'
 body_preset_path = './lib/presets/bodies/body_presets.csv'
 
 SECS_MINUTE = 60
@@ -175,7 +177,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
             star_class =  star_list[index][5][0]
 
-            colors = imread('./lib/presets/stars/'+star_class+'.png')
+            colors = imread('./lib/assets/textures/stars/'+star_class+'.png')
             colors = colors / 255
             md = gl.MeshData.sphere(rows=600, cols=800, radius=1)
             md.setVertexColors(colors=colors)
@@ -205,8 +207,10 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             self.camera_focus -= 1
             if self.camera_focus == 0:
                 self.camera_focus = len(self.body_list)-1
-            pos = Vector(self.results[self.camera_focus][-1][0], self.results[self.camera_focus][-1][1],
-                         self.results[self.camera_focus][-1][2])
+            if self.results:
+                pos = Vector(self.results[self.camera_focus][-1][0], self.results[self.camera_focus][-1][1], self.results[self.camera_focus][-1][2])
+            if not self.results:
+                pos = self.body_list[self.camera_focus]
             print(pos)
             self.gv_3d.opts['center'] = pos
             self.lbl_body_focus.setText(self.body_list[self.camera_focus].name)
@@ -440,6 +444,9 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             print(self.current_color)
 
         def loadPreset():
+
+            bodyDialog.gv_body.clear()
+
             chosen_preset = bodyDialog.cb_preset.currentText()
             for preset in self.body_presets:
                 if preset.name == chosen_preset:
@@ -449,6 +456,16 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
                     bodyDialog.le_vel.setText(str(preset.vel))
                     bodyDialog.le_sma.setText(str(preset.sma))
                     bodyDialog.le_inc.setText(str(preset.inc))
+
+            texture = imread('./lib/assets/textures/planets/'+chosen_preset.lower()+'.png')
+            texture = texture / 255
+
+            mesh_data = gl.MeshData.sphere(rows=600, cols=800, radius=1)
+            mesh_data.setVertexColors(colors=texture)
+            mesh_item = gl.GLMeshItem(meshdata=mesh_data, smooth=True, computeNormals=False, shader='balloon')
+            mesh_item.scale(3, 3, 3)
+
+            bodyDialog.gv_body.addItem(mesh_item)
 
         def returnBodyVals():
             name = bodyDialog.le_name.text()
@@ -500,13 +517,27 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             self.le_starmass.setText(str(self.star.mass))
             self.le_starradius.setText(str(self.star.radius))
 
-        colors = imread('./lib/presets/stars/G.png')
+        for location, body in enumerate(self.body_list):
+            try:
+                texture = imread(planet_textures_path+body.name.lower()+'.jpg')
+                texture = texture / 255
+                mesh = gl.MeshData.sphere(rows=300, cols=400, radius=1)
+                mesh.setVertexColors(colors=texture)
+                mesh_item = gl.GLMeshItem(meshdata=mesh, smooth=True, computeNormals=False, shader='balloon')
+                mesh_item.scale(1,1,1)
+                mesh_item.translate(location*5,0,0)
+                self.gv_system_view.addItem(mesh_item)
+            except Exception as e:
+                print(e)
+                pass
+
+        colors = imread('./lib/assets/textures/stars/G.png')
         colors = colors / 255
         md = gl.MeshData.sphere(rows=600, cols=800, radius=1)
         md.setVertexColors(colors=colors)
         mi = gl.GLMeshItem(meshdata=md, smooth=True, computeNormals=False, shader='balloon')
-        mi.scale(695000000, 695000000, 695000000)
-        self.gv_3d.addItem(mi)
+        mi.scale(3, 3, 3)
+        self.gv_system_view.addItem(mi)
 
 
 
