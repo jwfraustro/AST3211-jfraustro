@@ -1,0 +1,14 @@
+Name:,Alt Name:,Mass:,Radius:,Distance,Spectral Class,Solar Masses,Solar Radius,Temperature,Magnitude,Color Index
+Sun,Sol,1.99E+30,6.96E+05,0,G2 V,1,1,5772,4.83,0.65
+Aldebaran,Alpha Tauri,2.98E+30,3.07E+07,65.3,K5 III,1.5,44.13,3910,-0.64,1.44
+Alpha Centauri A,,2.19E+30,8.51E+05,4.37,G2V,1.1,1.2234,5790,4.38,0.71
+Altair,Alpha Aquilae,3.56E+30,1.22E+06,16.3,A7 V,1.79,1.75,7500,2.22,0.22
+Antares,Alpha Scorpii,2.39E+31,4.73E+08,550,M2,12,680,18500,-5.28,1.83
+Arcturus,Alpha Bootis,2.15E+30,1.77E+07,36.7,K0 III,1.08,25.4,4286,-0.30,1.23
+Betelgeuse,Alpha Orionis,2.31E+31,6.26E+08,640,M1,11.6,900,3590,-5.85,1.85
+Canopus,Alpha Carinae,1.59E+31,4.94E+07,310,A9,8,71,6998,-5.71,0.15
+Deneb,Alpha Cygni,3.78E+31,1.41E+08,2615,A2 I,19,203,8525,-8.38,0.09
+Pollux,Beta Geminorum,3.80E+30,6.12E+06,33.78,K0 III,1.91,8.8,4666,1.08,1.00
+Rigel,Beta Orionis,4.57E+31,5.49E+07,863,B8 I,23,78.9,12100,-7.84,-0.03
+Sirius A,Dog Star,4.10E+30,1.19E+06,8.6,A0,2.063,1.711,9940,1.42,0.00
+Vega,Alpha Lyrae,4.25E+30,1.64E+06,25.04,A0 V,2.135,2.362,9602,0.58,0.00

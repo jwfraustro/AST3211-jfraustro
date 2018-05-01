@@ -4,7 +4,7 @@ import os
 import sys
 from random import random
 
-from multiprocessing.pool import ThreadPool
+from scipy.misc import imread
 
 import pyqtgraph as pyqtg
 import pyqtgraph.opengl as gl
@@ -17,6 +17,7 @@ from numpy import max
 
 import lib.assets.gui.mainWindow as mainWindow
 from lib.assets.gui.bodyWidget import Ui_bodyForm as bodyWidget
+from lib.assets.gui.starWidget import Ui_starPresetDialog as starWidget
 from lib.scripts.euler import main as Euler
 from lib.scripts.sphere_influence import main as SOI
 
@@ -47,6 +48,9 @@ class Body:
         self.x = None
         self.y = None
         self.z = None
+        self.ax = 0
+        self.ay = 0
+        self.az = 0
         self.vx = None
         self.vy = None
         self.vz = None
@@ -81,6 +85,8 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
         self.loadPresetFiles()
         self.loadStarPreset()
 
+        self.btn_starbrowser.clicked.connect(lambda: self.launchStarWidget())
+
         #self.gv_xy.enableAutoRange(axis = self.gv_xy.ViewBox.YAxis, enable=True)
 
         self.gv_3d.opts['distance'] = (4e11)
@@ -105,6 +111,83 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
         self.loadPreset()
 
+
+    def launchStarWidget(self):
+
+        dialog = QtWidgets.QDialog()
+        starDialog = starWidget()
+        starDialog.setupUi(dialog)
+        dialog.setWindowTitle('Star Browser')
+
+        star_lv_model = QStandardItemModel(starDialog.lv_stars)
+        starDialog.lv_stars.setModel(star_lv_model)
+
+        starDialog.lv_stars.doubleClicked.connect(lambda: updateFields(starDialog.lv_stars.selectionModel().selection().indexes()[0].row()))
+
+        star_list = []
+
+        def loadStars():
+
+            with open('./lib/presets/stars/star_data.csv','r') as f:
+                reader = csv.reader(f, delimiter=',')
+                next(reader)
+                for row in reader:
+                    name = row[0]
+                    alt_name = row[1]
+                    mass = row[2]
+                    radius = row[3]
+                    dist = row[4]
+                    spec_class = row[5]
+                    sol_mass = row[6]
+                    sol_radius = row[7]
+                    temp = row[8]
+                    mag = row[9]
+                    index = row[10]
+                    star = [name, alt_name, mass, radius,dist,spec_class,sol_mass,sol_radius,temp, mag, index]
+                    star_list.append(star)
+
+            for star in star_list:
+                item = QStandardItem(star[0])
+                star_lv_model.appendRow(item)
+
+            updateFields(index=0)
+
+        def updateFields(index):
+
+            starDialog.le_name.setText(star_list[index][0])
+            starDialog.le_altname.setText(star_list[index][1])
+            starDialog.le_dist.setText(star_list[index][4])
+            starDialog.le_specclass.setText(star_list[index][5])
+            starDialog.le_solmass.setText(star_list[index][6])
+            starDialog.le_mass.setText(star_list[index][2])
+            starDialog.le_radius.setText(star_list[index][3])
+            starDialog.le_radius_2.setText(star_list[index][7])
+            starDialog.le_temp.setText(star_list[index][8])
+            starDialog.le_mag.setText(star_list[index][9])
+
+            loadStarModel(index)
+
+            return
+
+        def loadStarModel(index):
+
+            starDialog.gv_star.clear()
+
+            star_class =  star_list[index][5][0]
+
+            colors = imread('./lib/presets/stars/'+star_class+'.png')
+            colors = colors / 255
+            md = gl.MeshData.sphere(rows=600, cols=800, radius=1)
+            md.setVertexColors(colors=colors)
+            mi = gl.GLMeshItem(meshdata=md, smooth=True, computeNormals=False, shader='balloon')
+            mi.scale(4,4,4)
+            starDialog.gv_star.addItem(mi)
+
+
+        loadStars()
+
+        dialog.show()
+        dialog.exec_()
 
     def setCameraFocus(self, direction):
 
@@ -182,24 +265,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
 
         if self.rb_multiprocess.isChecked() == True:
             print("true")
-            self.results = Euler(self.star, self.body_list, steps, step_value, report, 0)
-
-
-
-        # if self.rb_inc_report.isChecked() == True:
-        #     self.gv_3d.clear()
-        #     self.gv_xy.clear()
-        #     self.results = Euler(self.star, self.body_list, steps, step_value, report)
-        #
-        #     for step in range(len(self.results[0])):
-        #        self.gv_3d.clear()
-        #        self.gv_xy.clear()
-        #        for body in range(0, len(self.body_list)):
-        #            self.gv_xy.addItem(
-        #                pyqtg.PlotDataItem(x=array(self.results[body][:step])[:, 0], y=array(self.results[body][:step])[:, 1]))
-        #            self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(self.results[body][:step]), color=self.body_list[body].color,
-        #                                                 antialias=True, mode='line_strip', width=3.0))
-        #        self.gv_xy.addItem(pyqtg.ScatterPlotItem(x=[0 for x in range(step)], y=[0 for x in range(step)]))
+            self.results = Euler(self.star, self.body_list, steps, step_value, report, 1)
 
 
         if self.rb_multiprocess.isChecked() == False:
@@ -210,7 +276,7 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
                 self.results = SOI(self.star, self.body_list, int(self.le_n.text()), int(self.le_s.text()), int(self.le_r.text()))
 
         for body in range(0, len(self.body_list)):
-            self.gv_xy.addItem(pyqtg.PlotDataItem(x=array(self.results[body][:])[:,0], y=array(self.results[body][:])[:,1]))
+            self.gv_xy.addItem(pyqtg.PlotDataItem(x=array(self.results[body][:])[:,0], y=array(self.results[body][:])[:,1], antialiasing=True, name=self.body_list[body].name, ))
             self.gv_3d.addItem(gl.GLLinePlotItem(pos=array(self.results[body]), color=self.body_list[body].color, antialias=True, mode='line_strip',width=3.0))
         self.gv_xy.addItem(pyqtg.ScatterPlotItem(x=[0 for x in range(steps)], y=[0 for x in range(steps)]))
 
@@ -433,6 +499,14 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
             self.le_starname.setText(str(self.star.name))
             self.le_starmass.setText(str(self.star.mass))
             self.le_starradius.setText(str(self.star.radius))
+
+        colors = imread('./lib/presets/stars/G.png')
+        colors = colors / 255
+        md = gl.MeshData.sphere(rows=600, cols=800, radius=1)
+        md.setVertexColors(colors=colors)
+        mi = gl.GLMeshItem(meshdata=md, smooth=True, computeNormals=False, shader='balloon')
+        mi.scale(695000000, 695000000, 695000000)
+        self.gv_3d.addItem(mi)
 
 
 

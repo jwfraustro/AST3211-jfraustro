@@ -2,8 +2,7 @@ import numpy as np
 from math import sqrt
 from PyQt5 import QtWidgets
 
-from multiprocessing import Process
-
+from threading import Thread
 
 G = 6.674e-11
 
@@ -39,6 +38,29 @@ def calcAcceleration(star, bodies, skip_num):
 
     return
 
+def multiProcessAcceleration(body, otherBody, skip_num):
+
+    body.ax, body.ay, body.az = 0, 0, 0
+
+    dist = (body.x - otherBody.x) ** 2 + (body.y - otherBody.y) ** 2 + (body.z - otherBody.z) ** 2
+    dist = sqrt(dist)
+    a_scal = G * otherBody.mass / dist ** 3
+    body.ax += a_scal * (otherBody.x - body.x)
+    body.ay += a_scal * (otherBody.y - body.y)
+    body.az += a_scal * (otherBody.z - body.z)
+
+    return
+
+def multiProcessVelPosUpdate(body, skip_num):
+
+    body.vx += body.ax * skip_num
+    body.vy += body.ay * skip_num
+    body.vz += body.az * skip_num
+    body.x += body.vx * skip_num
+    body.y += body.vy * skip_num
+    body.z += body.vz * skip_num
+
+
 def convertUnits(bodies):
 
     for body in bodies:
@@ -64,20 +86,35 @@ def main(star, bodies, t_step, skip_num, report, multiprocess):
     for body in bodies:
         body_history.append([[body.x, body.y, body.z]])
 
-    # if multiprocess == 1:
-    #     for i in range(0, t_step):
-    #         for body in range(len(bodies)):
-    #             p = Process(target=f)
-    #         if i % report == 0:
-    #             for i, body in enumerate(bodies):
-    #                 body_history[i].append([body.x, body.y, body.z])
+    if multiprocess == 1:
+
+        for i in range(0, t_step):
+            progress.setValue(i)
+            if progress.wasCanceled() == True:
+                break
+            QtWidgets.QApplication.processEvents()
+
+            for body in bodies:
+                temp_body_list = [planet for planet in bodies]
+                temp_body_list.remove(body)
+                temp_body_list.append(star)
+                for otherBody in temp_body_list:
+                    t = Thread(name=body.name+' vs.'+otherBody.name, target=multiProcessAcceleration, args=(body, otherBody, skip_num))
+                    t.start()
+                multiProcessVelPosUpdate(body, skip_num)
+
+
+            if i % report == 0:
+                for i, body in enumerate(bodies):
+                    body_history[i].append([body.x, body.y, body.z])
+
 
     if multiprocess == 0:
         for i in range(0, t_step):
             progress.setValue(i)
             if progress.wasCanceled() == True:
                 break
-            #QtWidgets.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
             calcAcceleration(star, bodies, skip_num)
             if i % report == 0:
                 for i, body in enumerate(bodies):

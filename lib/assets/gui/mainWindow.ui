@@ -48,7 +48,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="TAB_bodies">
           <property name="sizePolicy">
@@ -147,6 +147,12 @@
                  <string>Star:</string>
                 </property>
                 <layout class="QFormLayout" name="formLayout">
+                 <property name="labelAlignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="formAlignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
                  <item row="0" column="0">
                   <widget class="QLabel" name="lbl_starpreset">
                    <property name="text">
@@ -157,41 +163,61 @@
                  <item row="0" column="1">
                   <widget class="QComboBox" name="cb_starPreset"/>
                  </item>
-                 <item row="1" column="0">
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="lbl_starbrowser">
+                   <property name="text">
+                    <string>Star Browser:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QPushButton" name="btn_starbrowser">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Open</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
                   <widget class="QLabel" name="lbl_starname">
                    <property name="text">
                     <string>Name:</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
+                 <item row="3" column="1">
                   <widget class="QLineEdit" name="le_starname">
                    <property name="text">
                     <string/>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
+                 <item row="4" column="0">
                   <widget class="QLabel" name="lbl_starmass">
                    <property name="text">
                     <string>Mass:</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
+                 <item row="4" column="1">
                   <widget class="QLineEdit" name="le_starmass"/>
                  </item>
-                 <item row="3" column="0">
+                 <item row="5" column="0">
                   <widget class="QLabel" name="lbl_starradius">
                    <property name="text">
                     <string>Radius:</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
+                 <item row="5" column="1">
                   <widget class="QLineEdit" name="le_starradius"/>
                  </item>
-                 <item row="4" column="1">
+                 <item row="6" column="1">
                   <widget class="QFrame" name="frame_5">
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
@@ -550,10 +576,10 @@
            <item row="1" column="1">
             <widget class="QRadioButton" name="rb_multiprocess">
              <property name="text">
-              <string/>
+              <string>(Currently Unsupported)</string>
              </property>
              <property name="checked">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
