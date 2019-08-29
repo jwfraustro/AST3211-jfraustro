@@ -4,7 +4,7 @@ import os
 import sys
 from random import random
 
-from scipy.misc import imread
+from matplotlib.pyplot import imread
 
 import pyqtgraph as pyqtg
 import pyqtgraph.opengl as gl
@@ -531,10 +531,13 @@ class SimMainWindow(QtWidgets.QMainWindow, mainWindow.Ui_SimMainWindow):
                 print(e)
                 pass
 
-        colors = imread('./lib/assets/textures/stars/G.png')
-        colors = colors / 255
         md = gl.MeshData.sphere(rows=600, cols=800, radius=1)
-        md.setVertexColors(colors=colors)
+        try:
+            colors = imread('./lib/assets/textures/stars/G.png')
+            colors = colors / 255
+            md.setVertexColors(colors=colors)
+        except:
+            pass
         mi = gl.GLMeshItem(meshdata=md, smooth=True, computeNormals=False, shader='balloon')
         mi.scale(3, 3, 3)
         self.gv_system_view.addItem(mi)
